@@ -1,6 +1,6 @@
 ---
 
-image_name: "ubuntu-upstart:14.04"
+image_name: "ubuntu-upstart-14.04:ansible"
 mongodb_version: "3.0"
 mongodb_storage_dbpath: /var/lib/mongodb
 mongodb_net_bindip: 0.0.0.0

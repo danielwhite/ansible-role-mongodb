@@ -9,7 +9,6 @@
       docker:
         name: "{{ item }}"
         image: "{{ image_name }}"
-        command: "/sbin/init"
         state: started
       with_items:
         - mongo1

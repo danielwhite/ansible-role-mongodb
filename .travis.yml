@@ -4,6 +4,10 @@
 sudo: required
 env:
   - >
+    DISTRIBUTION=ubuntu
+    DIST_VERSION=14.04
+    MONGODB_VERSION=2.6
+  - >
     DISTRIBUTION=centos
     DIST_VERSION=6
     MONGODB_VERSION=2.6
@@ -19,15 +23,23 @@ before_install:
   - sudo apt-get install ansible python-pip -y
   - sudo pip install docker-py==1.5.0
   # Pull docker image
-  - sudo docker pull ${DISTRIBUTION}:${DIST_VERSION}
+  - >
+    sudo docker build --rm=true
+    --file tests/Dockerfile.${DISTRIBUTION}-${DIST_VERSION}
+    --tag ${DISTRIBUTION}-${DIST_VERSION}:ansible tests
   - sudo ln -s ${PWD} /etc/ansible/roles/greendayonfire.mongodb
   
 script:
   # Test 1
-  - sudo ansible-playbook -i tests/hosts tests/site.yml -e target=mongo1 -e mongodb_version=${MONGODB_VERSION} -e image_name=${DISTRIBUTION}:${DIST_VERSION} 
+  - >
+    sudo ansible-playbook -i tests/hosts tests/site.yml -e target=mongo1
+    -e mongodb_version=${MONGODB_VERSION}
+    -e image_name=${DISTRIBUTION}-${DIST_VERSION}:ansible
     # Idempotence test
   - >
-    sudo ansible-playbook -i tests/hosts tests/site.yml -e target=mongo1 -e mongodb_version=${MONGODB_VERSION} -e image_name=${DISTRIBUTION}:${DIST_VERSION}
+    sudo ansible-playbook -i tests/hosts tests/site.yml -e target=mongo1
+    -e mongodb_version=${MONGODB_VERSION}
+    -e image_name=${DISTRIBUTION}-${DIST_VERSION}:ansible
     | grep -q 'changed=0.*failed=0'
     && (echo 'Idempotence test: pass' && exit 0)
     || (echo 'Idempotence test: fail' && exit 1)
@@ -37,12 +49,16 @@ script:
 
   # Test 2
   - >
-    sudo ansible-playbook -i tests/hosts tests/site.yml -e target=mongo1 -e image_name=${DISTRIBUTION}:${DIST_VERSION}
-    -e mongodb_version=${MONGODB_VERSION} -e mongodb_security_authorization='enabled'
+    sudo ansible-playbook -i tests/hosts tests/site.yml -e target=mongo1
+    -e mongodb_version=${MONGODB_VERSION}
+    -e image_name=${DISTRIBUTION}-${DIST_VERSION}:ansible
+    -e mongodb_security_authorization='enabled'
     # Idempotence test
   - >
-    sudo ansible-playbook -i tests/hosts tests/site.yml -e target=mongo1 -e image_name=${DISTRIBUTION}:${DIST_VERSION}
-    -e mongodb_version=${MONGODB_VERSION} -e mongodb_security_authorization='enabled'
+    sudo ansible-playbook -i tests/hosts tests/site.yml -e target=mongo1
+    -e mongodb_version=${MONGODB_VERSION}
+    -e image_name=${DISTRIBUTION}-${DIST_VERSION}:ansible
+    -e mongodb_security_authorization='enabled'
     | grep -q 'changed=0.*failed=0'
     && (echo 'Idempotence test: pass' && exit 0)
     || (echo 'Idempotence test: fail' && exit 1)
@@ -52,12 +68,16 @@ script:
 
   # Test 3
   - >
-    sudo ansible-playbook -i tests/hosts tests/site.yml -e target=mongo -e image_name=${DISTRIBUTION}:${DIST_VERSION}
-    -e mongodb_version=${MONGODB_VERSION} -e mongodb_replication_replset='testrs'
+    sudo ansible-playbook -i tests/hosts tests/site.yml -e target=mongo
+    -e mongodb_version=${MONGODB_VERSION}
+    -e image_name=${DISTRIBUTION}-${DIST_VERSION}:ansible
+    -e mongodb_replication_replset='testrs'
     # Idempotence test
   - >
-    sudo ansible-playbook -i tests/hosts tests/site.yml -e target=mongo -e image_name=${DISTRIBUTION}:${DIST_VERSION}
-    -e mongodb_version=${MONGODB_VERSION} -e mongodb_replication_replset='testrs'
+    sudo ansible-playbook -i tests/hosts tests/site.yml -e target=mongo
+    -e mongodb_version=${MONGODB_VERSION}
+    -e image_name=${DISTRIBUTION}-${DIST_VERSION}:ansible
+    -e mongodb_replication_replset='testrs'
     | grep -q 'changed=0.*failed=0'
     && (echo 'Idempotence test: pass' && exit 0)
     || (echo 'Idempotence test: fail' && exit 1)
@@ -67,13 +87,17 @@ script:
 
   # Test 4
   - >
-    sudo ansible-playbook -i tests/hosts tests/site.yml -e target=mongo -e image_name=${DISTRIBUTION}:${DIST_VERSION}
-    -e mongodb_version=${MONGODB_VERSION} -e mongodb_replication_replset='testrs'
+    sudo ansible-playbook -i tests/hosts tests/site.yml -e target=mongo
+    -e mongodb_version=${MONGODB_VERSION}
+    -e image_name=${DISTRIBUTION}-${DIST_VERSION}:ansible
+    -e mongodb_replication_replset='testrs'
     -e mongodb_security_authorization='enabled'
     # Idempotence test
   - >
-    sudo ansible-playbook -i tests/hosts tests/site.yml -e target=mongo -e image_name=${DISTRIBUTION}:${DIST_VERSION}
-    -e mongodb_version=${MONGODB_VERSION} -e mongodb_replication_replset='testrs'
+    sudo ansible-playbook -i tests/hosts tests/site.yml -e target=mongo
+    -e mongodb_version=${MONGODB_VERSION}
+    -e image_name=${DISTRIBUTION}-${DIST_VERSION}:ansible
+    -e mongodb_replication_replset='testrs'
     -e mongodb_security_authorization='enabled'
     | grep -q 'changed=0.*failed=0'
     && (echo 'Idempotence test: pass' && exit 0)
